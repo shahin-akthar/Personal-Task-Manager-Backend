@@ -10,8 +10,10 @@ app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 
+const Database = require('better-sqlite3');
 
-const database = new sqlite3.Database("task_manager.db", (error) => {
+
+const database = new Database("task_manager.db", (error) => {
   if (error) {
     console.log(error);
   } else {
@@ -86,13 +88,11 @@ app.put("/update-task/:id", (request, response) => {
     return response.status(400).json({ error: "No fields provided for update" });
   }
 
-  // Optional: Check if task exists
   database.get("SELECT * FROM tasks WHERE id = ?", [id], (err, row) => {
     if (err || !row) {
       return response.status(404).json({ error: "Task not found" });
     }
 
-    // Perform the update
     const query = `UPDATE tasks SET ${fields.join(", ")} WHERE id = ?`;
     values.push(id);
 
